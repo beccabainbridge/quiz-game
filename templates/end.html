@@ -17,8 +17,8 @@
       </form>
       {% else %}
       <ol>
-	{% for score in highscores %}
-	<li>{{score}}</li>
+	{% for name, score in highscores %}
+	<li>{{name}}    {{score}}</li>
 	{% endfor %}
       </ol>
       <form action='/' >

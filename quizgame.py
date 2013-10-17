@@ -44,17 +44,18 @@ def add_to_highscores(name, score):
     with closing(connect_db()) as db:
         try:
             db.execute("INSERT INTO highscores (name, score) VALUES (?, ?)", \
-                           (name, score))
+                           (name, score,))
         except sqlite3.OperationalError:            
             db.execute("CREATE TABLE highscores (name, score)")
             db.execute("INSERT INTO highscores (name, score) VALUES (?, ?)", \
-                           (name, score))
+                           (name, score,))
+        db.commit()
 
 def get_highscores(num):
     with closing(connect_db()) as db:
         try:
-            query = db.execute("SELECT score FROM highscores order by score")
-            highscores = [(row[0], row[1]) for row in query.fetchall()]
+            query = db.execute("SELECT name, score FROM highscores order by score desc")
+            highscores = [(name, score) for name, score in query.fetchall()]
             if len(highscores) < num:
                 return highscores
             else:
@@ -107,10 +108,7 @@ def main():
 @app.route('/end', methods=['GET','POST'])
 def end():
     score = app.score/app.nquestions * 100
-    #score = 100
-    #app.lowest_highscore = None
-    #app.highscores = get_highscores(10)
-    if request.method == 'GET' and score > app.lowest_highscore:
+    if request.method == 'GET' and score >= app.lowest_highscore:
         return render_template('end.html', score=score, \
                                    highscores=app.highscores, get_info=True)
     elif request.method == 'POST':
