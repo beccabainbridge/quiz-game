@@ -7,4 +7,8 @@ create table questions (
   ans3 text not null,
   ans4 text not null,
   correct text not null
-)
+);
+create table highscores (
+  name text,
+  score integer
+);
