@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Quiz Game</title>
+    <link rel=stylesheet type=text/css href='{{url_for('static', filename='style.css')}}' />
+  </head>
+  <body>
+    <div class=page>
+      <h4>
+	You finished the quiz. Your score is {{score}}%.
+      </h4>
+      {% if get_info %}
+      <p> You got a high score! </p>
+      <form method='post' action='end'>
+	Enter your name:<input type='text' name='name'><br>
+	<br><input type='submit' value='Submit'>
+      </form>
+      {% else %}
+      <ol>
+	{% for score in highscores %}
+	<li>{{score}}</li>
+	{% endfor %}
+      </ol>
+      <form action='/' >
+	<input type='submit' value='Play again'>
+      </form>
+      {% endif %}
+    </div>
+  </body>
+</html>

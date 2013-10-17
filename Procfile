@@ -1,0 +1,1 @@
+web: gunicorn quizgame:app 
