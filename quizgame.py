@@ -160,4 +160,4 @@ def next():
 if __name__ == '__main__':
     if get_db_size() == 0:
         create_database(database, schema)
-    app.run(debug=True)
+    app.run()
