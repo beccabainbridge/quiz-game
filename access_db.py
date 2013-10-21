@@ -17,10 +17,19 @@ def init_db(filename, schema):
             db.cursor().executescript(f.read())
         db.commit()
 
+def question_in_db(question, filename):
+    with closing(connect_db(filename)) as db:
+        query = db.execute('SELECT COUNT(*) from questions WHERE question=?', (question,))
+        exists = query.fetchone()[0]
+        return exists >= 1
+
 def add_question(row, filename):
     with closing(connect_db(filename)) as db:
-        db.execute('INSERT INTO questions (num, question, ans1, ans2, ans3, ans4, correct) VALUES (?, ?, ?, ?, ?, ?, ?)', row)
-        db.commit()
+        if question_in_db(row[1], filename):
+            raise Exception('Question already in database.')
+        else:
+            db.execute('INSERT INTO questions (num, question, ans1, ans2, ans3, ans4, correct) VALUES (?, ?, ?, ?, ?, ?, ?)', row)
+            db.commit()
 
 def generate_db_from_csv(filename):
     with codecs.open(csv, encoding="utf-8", mode='rb') as f:
