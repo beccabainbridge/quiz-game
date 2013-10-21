@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Question #{{num}}</h2>
+<h4 id="question">{{question}}</h4>
+<form id='answerform' method='post' action='next' >
+  Answer: <br />
+  <input type='radio' name='response' value='A' /> {{ans1}} <br />
+  <input type='radio' name='response' value='B' /> {{ans2}} <br />
+  <input type='radio' name='response' value='C' /> {{ans3}} <br />
+  <input type='radio' name='response' value='D' /> {{ans4}} <br />
+  <br />
+  <input type='submit' value='Submit' />
+</form>
+{% endblock %}
