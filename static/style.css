@@ -1,9 +1,9 @@
-nav { font-size: 1em; padding: 0.3em;
+nav { font-size: 1em; padding: 1em;
 	  margin-bottom: 1em; background: #fafafa; }
 
-#logo { display: inline; text-decoration: none; font-size: 1.5em; }
+#logo { text-decoration: none; font-size: 1.5em; }
 
-#login { float: right; }
+#admin, #login { float: right; }
 
 .flash { background: #cee5F5; padding: 0.5em;
 	 border: 1px solid #aacbe2; }

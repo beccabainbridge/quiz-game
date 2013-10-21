@@ -10,6 +10,8 @@
       {% if not session.logged_in %}
 	<a id='login' href="{{url_for('login')}}">log in</a>
       {% else %}
+	<a id='admin' href="{{url_for('admin')}}">Admin Page</a>
+	<br>
 	<a id='login' href="{{url_for('logout')}}">log out</a>
       {% endif %}
       </nav>
