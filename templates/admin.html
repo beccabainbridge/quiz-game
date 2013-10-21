@@ -15,6 +15,32 @@
       Correct Answer (A-D): <input type='text' name='correct'><br />
       <br /> <input type='submit' value='Submit'>
     </form>
+    <table border='1'>
+      <thead>
+	<tr>
+	  <th>Question</th>
+	  <th>Answer "A"</th>
+	  <th>Answer "B"</th>
+	  <th>Answer "C"</th>
+	  <th>Answer "D"</th>
+	  <th>Correct Answer</th>
+	</tr>
+      </thead>
+      <tbody>
+      {% for q_dict in questions %}
+	<tr>
+	  <td>{{q_dict['question']}}</td>
+	  <td>{{q_dict['A']}}</td>
+	  <td>{{q_dict['B']}}</td>
+	  <td>{{q_dict['C']}}</td>
+	  <td>{{q_dict['D']}}</td>
+	  <td>{{q_dict['correct']}}</td>
+	</tr>
+      {% endfor %}
+      </tbody>
+    </table>
+	  
+	  
 {% else %}
     <h2> Access Denied! </h2>
   {% endif %}

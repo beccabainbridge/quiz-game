@@ -142,7 +142,8 @@ def admin():
         except (sqlite3.OperationalError, Exception) as e:
             flash('Invalid question entry: ' + str(e))
 
-    return render_template('admin.html')
+    questions = get_questions(get_db_size())
+    return render_template('admin.html', questions=questions)
 
         
         
