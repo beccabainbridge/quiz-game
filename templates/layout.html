@@ -2,23 +2,20 @@
 <html>
   <head>
     <title>Quiz Game</title>
-    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='style.css')}}'>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css')}}">
   </head>
-  <body>
-    <div class=page>
-      <h1>Question #{{num}}</h1>
-
-      <h4 id="question">{{question}}</h4>
-
-      <form id='answerform' method='post' action='next' >
-	  Answer: <br />
-	  <input type='radio' name='response' value='A' /> {{ans1}} <br />
-	  <input type='radio' name='response' value='B' /> {{ans2}} <br />
-	  <input type='radio' name='response' value='C' /> {{ans3}} <br />
-	  <input type='radio' name='response' value='D' /> {{ans4}} <br />
-	  <br />
-	  <input type='submit' value='Submit' />
-      </form>
-    </div>
+  <body >
+      <nav>
+	<a id='logo' href="/" >Quiz Game</a>
+      {% if not session.logged_in %}
+	<a id='login' href="{{url_for('login')}}">log in</a>
+      {% else %}
+	<a id='login' href="{{url_for('logout')}}">log out</a>
+      {% endif %}
+      </nav>
+      {% for message in get_flashed_messages() %}
+      <div class=flash>{{message}}</div>
+      {% endfor %}
+      {% block body %}{% endblock %}
   </body>
 </html>

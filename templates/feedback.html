@@ -1,20 +1,9 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Quiz Game</title>
-    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='style.css')}}'>
-  </head>
-  <body>
-    <div class=page>
-      <h1>Question #{{num}}</h1>
-
-      <h4 id="question">{{question}}</h4>
-
-      <h4 id="feedback"> {{feedback}} </h4>
-
-      <form id='answerform' method='post' action='next' >
-	  <input type='submit' value='Next' />
-      </form>
-    </div>
-  </body>
-</html>
+{% extends "layout.html" %}
+{% block body %}
+  <h1>Question #{{num}}</h1>
+  <h4 id="question">{{question}}</h4>
+  <h4 id="feedback"> {{feedback}} </h4>
+  <form id='answerform' method='post' action='next' >
+    <input type='submit' value='Next' />
+  </form>
+{% endblock %}
