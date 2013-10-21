@@ -26,10 +26,22 @@ def question_in_db(question, filename):
 def add_question(row, filename):
     with closing(connect_db(filename)) as db:
         if question_in_db(row[1], filename):
-            raise Exception('Question already in database.')
+            raise Exception('Question already in database. If you want to change the question, choose "Update Question"')
         else:
             db.execute('INSERT INTO questions (num, question, ans1, ans2, ans3, ans4, correct) VALUES (?, ?, ?, ?, ?, ?, ?)', row)
             db.commit()
+
+def update_question(question, change, filename, delete=False):
+    with closing(connect_db(filename)) as db:
+        if question_in_db(question, filename):
+            if delete:
+                db.execute('DELETE FROM questions WHERE question=?', (question,))
+            else:
+                query = 'UPDATE questions SET %s=? where question=?' % change[0]
+                db.execute(query, (change[1], question))
+            db.commit()
+        else:
+            raise Exception('Question not in database.')
 
 def generate_db_from_csv(filename):
     with codecs.open(csv, encoding="utf-8", mode='rb') as f:

@@ -2,7 +2,7 @@ import sqlite3
 from contextlib import closing
 from random import shuffle
 from flask import Flask, render_template, request, redirect, g, session, flash
-from access_db import create_database, add_question
+from access_db import create_database, add_question, update_question
 
 #configs
 DEBUG = True
@@ -36,12 +36,19 @@ def get_question(n):
         return dict(question=entry[0], A=entry[1], B=entry[2], C=entry[3],\
                     D=entry[4], correct=entry[5])
 
+def get_question_nums():
+    with closing(connect_db()) as db:
+        cur = db.execute("SELECT id from questions")
+        entries = cur.fetchall()
+        question_ids = [row[0] for row in entries]
+        return question_ids
+
 def get_questions(n):
-    total_questions = get_db_size()
-    question_nums = range(1, total_questions + 1)
+    question_nums = get_question_nums()
     shuffle(question_nums)
     questions = []
     for i in range(n):
+        print question_nums[i]
         question = get_question(question_nums[i])
         questions.append(question)
     return questions
@@ -65,7 +72,7 @@ def get_highscores(num):
             if len(highscores) < num:
                 return highscores
             else:
-                return highscores[:num+1]
+                return highscores[:num]
         except sqlite3.OperationalError:
             return []
     
@@ -104,20 +111,34 @@ def logout():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if request.method == 'POST':
+        update_type = request.form['change']
         q = request.form['question']
         a1, a2, a3, a4 = request.form['ans1'], request.form['ans2'], request.form['ans3'], request.form['ans4']
         c = request.form['correct']
         n = get_db_size() + 1
 
         question_info = [n, q, a1, a2, a3, a4, c]
+        names = ['num', 'question', 'ans1', 'ans2', 'ans3', 'ans4', 'correct']
                 
         try:
-            for item in question_info:
-                if item == "":
-                    raise Exception('Input cannot be left blank')
+            if update_type == 'delete':
+                update_question(q, [], database, True)
+                flash('Question deleted')
+            else:
+                for item in question_info:
+                    if item == "":
+                        if update_type == 'add':
+                            raise Exception('Input cannot be left blank')
+                    else:
+                        if update_type == 'update':
+                            name = names[question_info.index(item)]
+                            update_question(q, (name, item), database)
 
-            add_question(question_info, database)
-            flash('Question added')
+                if update_type == 'add':
+                    add_question(question_info, database)
+                    flash('Question added')
+                else:
+                    flash('Question updated')
         except (sqlite3.OperationalError, Exception) as e:
             flash('Invalid question entry: ' + str(e))
 
@@ -143,8 +164,9 @@ def index():
         app.nquestions = nquestions
         app.curquestion = 0
         app.score = 0
-        app.highscores = get_highscores(10)
-        if app.highscores:
+        num_to_show = 10
+        app.highscores = get_highscores(num_to_show)
+        if len(app.highscores) >= num_to_show:
             app.lowest_highscore = app.highscores[-1][1]
         else:
             app.lowest_highscore = None
@@ -195,7 +217,9 @@ def next():
             return redirect('main')
         else:
             ans = ans['response']
-            
+        
+        app.curquestion += 1
+
         correct = app.question_info['correct']
         if ans == correct:
             app.score += 1.0
@@ -203,12 +227,9 @@ def next():
         else:
             feedback = 'Incorrect! The correct answer was "%s"' \
                          %(app.question_info[correct])
-        
-        app.curquestion += 1
 
-        return render_template('feedback.html', feedback=feedback, \
-                                   question=app.q, num=app.n)
-
+        flash(feedback)
+        return redirect('main')
 
 if __name__ == '__main__':
     if get_db_size() == 0:

@@ -1,8 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
-    <h4>Enter a new question:</h4>
+    <h4>Enter a question to add, update, or delete:</h4>
     <form method='post' action='admin'>
+      <input id='addbutton' type='radio' name='change' value='add' checked='checked'> <label for='addbutton'>Add</label>
+      <input id='updatebutton' type='radio' name='change' value='update'> <label for='updatebutton'>Update</label>
+      <input id='deletebutton' type='radio' name='change' value='delete'> <label for='deletebutton'>Delete</label>
+      <br /> <br />
       Question: <input type='text' name='question'><br />
       Answer A: <input type='text' name='ans1'><br />
       Answer B: <input type='text' name='ans2'><br />
@@ -11,7 +15,6 @@
       Correct Answer (A-D): <input type='text' name='correct'><br />
       <br /> <input type='submit' value='Submit'>
     </form>
-  
 {% else %}
     <h2> Access Denied! </h2>
   {% endif %}
