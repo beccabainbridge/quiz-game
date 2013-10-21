@@ -1,8 +1,14 @@
 import sqlite3
 from contextlib import closing
 from random import shuffle
-from flask import Flask, render_template, request, redirect, g
+from flask import Flask, render_template, request, redirect, g, session, flash
 from access_db import create_database, add_question
+
+#configs
+DEBUG = True
+SECRET_KEY = "placeholder"
+USERNAME = 'admin'
+PASSWORD = 'password'
 
 database = 'quizgame.db'
 schema = 'schema.sql'
@@ -73,6 +79,53 @@ def teardown_request(exception):
     if db is not None:
         db.close()
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] == app.config['USERNAME']:
+            if request.form['password'] == app.config['PASSWORD']:
+                session['logged_in'] = True
+                flash('You were logged in')
+                return redirect('admin')
+            else:
+                error = 'Incorrect password'
+        else:
+            error = 'Invalid username'
+
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash('You were logged out')
+    return redirect('/')
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        q = request.form['question']
+        a1, a2, a3, a4 = request.form['ans1'], request.form['ans2'], request.form['ans3'], request.form['ans4']
+        c = request.form['correct']
+        n = get_db_size() + 1
+
+        question_info = [n, q, a1, a2, a3, a4, c]
+                
+        try:
+            for item in question_info:
+                if item == "":
+                    raise Exception('Input cannot be left blank')
+
+            add_question(question_info, database)
+            flash('Question added')
+        except (sqlite3.OperationalError, Exception) as e:
+            flash('Invalid question entry: ' + str(e))
+
+    return render_template('admin.html')
+
+        
+        
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
@@ -133,7 +186,7 @@ def next():
         a1, a2, a3, a4 = app.question_info['A'], app.question_info['B'], \
                          app.question_info['C'], app.question_info['D']
         
-        return render_template('layout.html', num=app.n, question=app.q, \
+        return render_template('question.html', num=app.n, question=app.q, \
                                    ans1=a1, ans2=a2, ans3=a3, ans4=a4)
     else:
         # gets response to question and stays on question if not answered
