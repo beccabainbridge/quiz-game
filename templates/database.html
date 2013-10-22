@@ -2,7 +2,7 @@
 {% block body %}
   {% if session.logged_in %}
     <h4>Enter a question to add, update, or delete:</h4>
-    <form method='post' action='database_access'>
+    <form method='post' action='database'>
       <input id='addbutton' type='radio' name='change' value='add' checked='checked'> <label for='addbutton'>Add</label>
       <input id='updatebutton' type='radio' name='change' value='update'> <label for='updatebutton'>Update</label>
       <input id='deletebutton' type='radio' name='change' value='delete'> <label for='deletebutton'>Delete</label>
