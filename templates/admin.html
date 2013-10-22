@@ -1,47 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
-  {% if session.logged_in %}
-    <h4>Enter a question to add, update, or delete:</h4>
-    <form method='post' action='admin'>
-      <input id='addbutton' type='radio' name='change' value='add' checked='checked'> <label for='addbutton'>Add</label>
-      <input id='updatebutton' type='radio' name='change' value='update'> <label for='updatebutton'>Update</label>
-      <input id='deletebutton' type='radio' name='change' value='delete'> <label for='deletebutton'>Delete</label>
-      <br /> <br />
-      Question: <input type='text' name='question'><br />
-      Answer A: <input type='text' name='ans1'><br />
-      Answer B: <input type='text' name='ans2'><br />
-      Answer C: <input type='text' name='ans3'><br />
-      Answer D: <input type='text' name='ans4'><br />
-      Correct Answer (A-D): <input type='text' name='correct'><br />
-      <br /> <input type='submit' value='Submit'>
-    </form>
-    <table border='1'>
-      <thead>
-	<tr>
-	  <th>Question</th>
-	  <th>Answer "A"</th>
-	  <th>Answer "B"</th>
-	  <th>Answer "C"</th>
-	  <th>Answer "D"</th>
-	  <th>Correct Answer</th>
-	</tr>
-      </thead>
-      <tbody>
-      {% for q_dict in questions %}
-	<tr>
-	  <td>{{q_dict['question']}}</td>
-	  <td>{{q_dict['A']}}</td>
-	  <td>{{q_dict['B']}}</td>
-	  <td>{{q_dict['C']}}</td>
-	  <td>{{q_dict['D']}}</td>
-	  <td>{{q_dict['correct']}}</td>
-	</tr>
-      {% endfor %}
-      </tbody>
-    </table>
-	  
-	  
-{% else %}
+  {% if session.logged_in and session.username == 'admin' %}
+    <h2>Access Granted</h2>
+  {% else %}
     <h2> Access Denied! </h2>
   {% endif %}
 {% endblock %}
