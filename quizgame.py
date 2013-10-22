@@ -2,18 +2,18 @@ import sqlite3
 from contextlib import closing
 from random import shuffle
 from flask import Flask, render_template, request, redirect, g, session, flash
+from flaskext.bcrypt import Bcrypt
 from access_db import create_database, add_question, update_question
 
 #configs
 DEBUG = True
 SECRET_KEY = "placeholder"
-USERNAME = 'admin'
-PASSWORD = 'password'
 
 database = 'quizgame.db'
 schema = 'schema.sql'
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 app.config.from_object(__name__)
 
 def connect_db():
@@ -90,11 +90,14 @@ def teardown_request(exception):
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] == app.config['USERNAME']:
-            if request.form['password'] == app.config['PASSWORD']:
+        username = request.form['username']
+        if username in get_usernames():
+            pw_hash = get_password(username)
+            if bcrypt.check_password_hash(pw_hash, request.form['password']):
+                session['username'] = username
                 session['logged_in'] = True
                 flash('You were logged in')
-                return redirect('admin')
+                return redirect('database')
             else:
                 error = 'Incorrect password'
         else:
@@ -108,8 +111,55 @@ def logout():
     flash('You were logged out')
     return redirect('/')
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
+def add_user(username, password):
+    pw_hash = bcrypt.generate_password_hash(password)
+    
+    with closing(connect_db()) as db:
+        db.execute('INSERT INTO usernames (username) VALUES (?)', (username,))
+        cur = db.execute('SELECT id from usernames WHERE username=?', \
+                             (username,))
+        id_num = cur.fetchone()[0]
+        print id_num
+        db.execute('INSERT INTO passwords (id, password) VALUES (?,?)', \
+                       (id_num, pw_hash))
+        db.commit()
+
+def get_usernames():
+    with closing(connect_db()) as db:
+        cur = db.execute("SELECT username from usernames")
+        entries = cur.fetchall()
+        usernames = [entry[0] for entry in entries]
+    return usernames
+
+def get_password(username):
+    with closing(connect_db()) as db:
+        cur = db.execute('SELECT id from usernames WHERE username=?', \
+                             (username,))
+        id_num = cur.fetchone()[0]
+        cur = db.execute('SELECT password FROM passwords WHERE id=?', \
+                       (id_num,))
+        return cur.fetchone()[0]
+        
+@app.route('/create_account', methods=['GET', 'POST'])
+def create_user():
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        password_confirm = request.form['password_confirm']
+        if password != password_confirm:
+            error = "Passwords don't match"
+        elif username in get_usernames():
+            error = "Username already in use. Please choose another."
+        else:
+            add_user(username, password)
+            flash('Account created')
+            return redirect('login')
+
+    return render_template('create_account.html', error=error)
+    
+@app.route('/database', methods=['GET', 'POST'])
+def database_access():
     if request.method == 'POST':
         update_type = request.form['change']
         q = request.form['question']
@@ -143,10 +193,11 @@ def admin():
             flash('Invalid question entry: ' + str(e))
 
     questions = get_questions(get_db_size())
-    return render_template('admin.html', questions=questions)
+    return render_template('database.html', questions=questions)
 
-        
-        
+@app.route('/admin')
+def admin():        
+    return render_template('admin.html')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -192,7 +243,6 @@ def end():
         add_to_highscores(name, score)
         # update highscores
         app.highscores = get_highscores(10)
-        print app.highscores
         return render_template('end.html', score=score, \
                                    highscores=app.highscores, get_info=False)
         

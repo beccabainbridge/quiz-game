@@ -3,7 +3,7 @@ nav { font-size: 1em; padding: 1em;
 
 #logo { text-decoration: none; font-size: 1.5em; }
 
-#admin, #login { float: right; }
+#database, #admin, #login { float: right; }
 
 .flash { background: #cee5F5; padding: 0.5em;
 	 border: 1px solid #aacbe2; }

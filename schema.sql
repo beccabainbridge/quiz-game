@@ -12,3 +12,11 @@ create table highscores (
   name text,
   score integer
 );
+create table usernames (
+  id integer primary key autoincrement,
+  username text not null
+);
+create table passwords (
+  id integer primary key,
+  password text not null
+);

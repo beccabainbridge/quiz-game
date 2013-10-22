@@ -10,7 +10,7 @@
       {% if not session.logged_in %}
 	<a id='login' href="{{url_for('login')}}">log in</a>
       {% else %}
-	<a id='admin' href="{{url_for('admin')}}">Admin Page</a>
+	<a id='database' href="{{url_for('database_access')}}">Question Database</a>
 	<br>
 	<a id='login' href="{{url_for('logout')}}">log out</a>
       {% endif %}
