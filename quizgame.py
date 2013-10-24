@@ -3,7 +3,7 @@ from contextlib import closing
 from random import shuffle
 from flask import Flask, render_template, request, redirect, g, session, flash
 from flaskext.bcrypt import Bcrypt
-from access_db import create_database, add_question, update_question
+from access_db import *
 
 #configs
 DEBUG = True
@@ -11,71 +11,22 @@ SECRET_KEY = "placeholder"
 
 database = 'quizgame.db'
 schema = 'schema.sql'
+csv = 'quiz_questions.csv'
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.config.from_object(__name__)
 
-def connect_db():
-    return sqlite3.connect(database)
-
-def get_db_size():
-    with closing(connect_db()) as conn:   
-        try:
-            sizeinfo = conn.execute("SELECT count(*) FROM questions")
-            size = sizeinfo.fetchone()[0]
-        except sqlite3.OperationalError:
-            size = 0
-
-    return size
-
-def get_question(n):
-    with closing(connect_db()) as db:
-        cur = db.execute("SELECT question, ans1, ans2, ans3, ans4, correct FROM questions WHERE id=?", (n,))
-        entry = cur.fetchall()[0]
-        return dict(question=entry[0], A=entry[1], B=entry[2], C=entry[3],\
-                    D=entry[4], correct=entry[5])
-
-def get_question_nums():
-    with closing(connect_db()) as db:
-        cur = db.execute("SELECT id from questions")
-        entries = cur.fetchall()
-        question_ids = [row[0] for row in entries]
-        return question_ids
-
-def get_questions(n):
+def get_questions(n, ordered=False):
     question_nums = get_question_nums()
-    shuffle(question_nums)
+    if not ordered:
+        shuffle(question_nums)
     questions = []
     for i in range(n):
-        print question_nums[i]
         question = get_question(question_nums[i])
         questions.append(question)
     return questions
 
-def add_to_highscores(name, score):
-    with closing(connect_db()) as db:
-        try:
-            db.execute("INSERT INTO highscores (name, score) VALUES (?, ?)", \
-                           (name, score,))
-        except sqlite3.OperationalError:            
-            db.execute("CREATE TABLE highscores (name, score)")
-            db.execute("INSERT INTO highscores (name, score) VALUES (?, ?)", \
-                           (name, score,))
-        db.commit()
-
-def get_highscores(num):
-    with closing(connect_db()) as db:
-        try:
-            query = db.execute("SELECT name, score FROM highscores order by score desc")
-            highscores = [(name, score) for name, score in query.fetchall()]
-            if len(highscores) < num:
-                return highscores
-            else:
-                return highscores[:num]
-        except sqlite3.OperationalError:
-            return []
-    
 @app.before_request
 def before_request():
     g.db = connect_db()
@@ -110,35 +61,6 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
     return redirect('/')
-
-def add_user(username, password):
-    pw_hash = bcrypt.generate_password_hash(password)
-    
-    with closing(connect_db()) as db:
-        db.execute('INSERT INTO usernames (username) VALUES (?)', (username,))
-        cur = db.execute('SELECT id from usernames WHERE username=?', \
-                             (username,))
-        id_num = cur.fetchone()[0]
-        print id_num
-        db.execute('INSERT INTO passwords (id, password) VALUES (?,?)', \
-                       (id_num, pw_hash))
-        db.commit()
-
-def get_usernames():
-    with closing(connect_db()) as db:
-        cur = db.execute("SELECT username from usernames")
-        entries = cur.fetchall()
-        usernames = [entry[0] for entry in entries]
-    return usernames
-
-def get_password(username):
-    with closing(connect_db()) as db:
-        cur = db.execute('SELECT id from usernames WHERE username=?', \
-                             (username,))
-        id_num = cur.fetchone()[0]
-        cur = db.execute('SELECT password FROM passwords WHERE id=?', \
-                       (id_num,))
-        return cur.fetchone()[0]
         
 @app.route('/create_account', methods=['GET', 'POST'])
 def create_user():
@@ -162,18 +84,22 @@ def create_user():
 def database_access():
     if request.method == 'POST':
         update_type = request.form['change']
+        i = request.form['id']
         q = request.form['question']
         a1, a2, a3, a4 = request.form['ans1'], request.form['ans2'], request.form['ans3'], request.form['ans4']
         c = request.form['correct']
-        n = get_db_size() + 1
+        n = get_num_questions() + 1
 
         question_info = [n, q, a1, a2, a3, a4, c]
         names = ['num', 'question', 'ans1', 'ans2', 'ans3', 'ans4', 'correct']
                 
         try:
+            if not i and (update_type == 'delete' or update_type == 'update'):
+                raise Exception('Must enter question number to update or delete')
+            
             if update_type == 'delete':
-                update_question(q, [], database, True)
-                flash('Question deleted')
+                add_proposed([i] + question_info + ['delete', session['username']])
+                flash('Question submitted for deletion')                    
             else:
                 for item in question_info:
                     if item == "":
@@ -181,28 +107,34 @@ def database_access():
                             raise Exception('Input cannot be left blank')
                     else:
                         if update_type == 'update':
-                            name = names[question_info.index(item)]
-                            update_question(q, (name, item), database)
+                            pass
 
                 if update_type == 'add':
-                    add_question(question_info, database)
-                    flash('Question added')
+                    add_proposed([i] + question_info + ['add', session['username']])
+                    flash('Question submitted for addition')
                 else:
-                    flash('Question updated')
+                    add_proposed([i] + question_info + ['update', session['username']])
+                    flash('Question submitted for update')
+
         except (sqlite3.OperationalError, Exception) as e:
             flash('Invalid question entry: ' + str(e))
 
-    questions = get_questions(get_db_size())
+    questions = get_questions(get_num_questions(), ordered=True)
     return render_template('database.html', questions=questions)
 
-@app.route('/admin')
-def admin():        
-    return render_template('admin.html')
+@app.route('/admin', methods=['GET','POST'])
+def admin():
+    if request.method == 'POST':
+        pass
+
+    additions, updates, deletions = get_proposed()
+    questions = get_questions(get_num_questions(), ordered=True)
+    return render_template('admin.html', add=additions, update=updates, delete=deletions, questions=questions)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'GET':
-        total_questions = get_db_size()
+        total_questions = get_num_questions()
         options = range(5, total_questions + 1, 5)
 
         if options[-1] != total_questions:
@@ -283,6 +215,6 @@ def next():
         return redirect('main')
 
 if __name__ == '__main__':
-    if get_db_size() == 0:
-        create_database(database, schema)
+    if get_num_questions() == 0:
+        create_database(database, schema, csv)
     app.run()
