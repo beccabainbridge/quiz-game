@@ -20,3 +20,16 @@ create table passwords (
   id integer primary key,
   password text not null
 );
+create table proposed (
+  id integer,
+  num integer,
+  question text,
+  ans1 text,
+  ans2 text,
+  ans3 text,
+  ans4 text,
+  correct text,
+  kind text,
+  username text
+);
+  
