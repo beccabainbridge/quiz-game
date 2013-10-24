@@ -2,11 +2,13 @@
 {% block body %}
   {% if session.logged_in %}
     <h4>Enter a question to add, update, or delete:</h4>
+    <h6>(All edits will be reviewed by the administrator before being made)</h6>
     <form method='post' action='database'>
       <input id='addbutton' type='radio' name='change' value='add' checked='checked'> <label for='addbutton'>Add</label>
       <input id='updatebutton' type='radio' name='change' value='update'> <label for='updatebutton'>Update</label>
       <input id='deletebutton' type='radio' name='change' value='delete'> <label for='deletebutton'>Delete</label>
       <br /> <br />
+      Number: <input type='text' name='id'><br />
       Question: <input type='text' name='question'><br />
       Answer A: <input type='text' name='ans1'><br />
       Answer B: <input type='text' name='ans2'><br />
@@ -18,6 +20,7 @@
     <table border='1'>
       <thead>
 	<tr>
+	  <th>Number</th>
 	  <th>Question</th>
 	  <th>Answer "A"</th>
 	  <th>Answer "B"</th>
@@ -31,6 +34,7 @@
       <tbody>
       {% for q_dict in questions %}
 	<tr>
+	  <td>{{q_dict['id']}}</td>
 	  <td>{{q_dict['question']}}</td>
 	  <td>{{q_dict['A']}}</td>
 	  <td>{{q_dict['B']}}</td>
