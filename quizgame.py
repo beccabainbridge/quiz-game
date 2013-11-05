@@ -94,12 +94,8 @@ def database_access():
                 flash('Question submitted for deletion')                    
             else:
                 for item in question_info:
-                    if item == "":
-                        if update_type == 'add':
-                            raise QuestionValidationError('Input cannot be left blank')
-                    else:
-                        if update_type == 'update':
-                            pass
+                    if item == "" and update_type == 'add':
+                        raise QuestionValidationError('Input cannot be left blank')
 
                 if update_type == 'add':
                     add_proposed([i] + question_info + ['add', session['username']])
