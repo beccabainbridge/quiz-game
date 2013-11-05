@@ -10,10 +10,9 @@ from access_db import * # don't do this :)
 #configs
 DEBUG = os.environ["QUIZ_DEBUG"]
 SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]
-
-database = 'quizgame.db'
-schema = 'schema.sql'
-csv = 'quiz_questions.csv'
+DATABASE = os.environ["QUIZ_DATABASE"]
+SCHEMA = os.environ["QUIZ_SCHEMA"]
+CSV = os.environ["QUIZ_CSV"]
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -196,5 +195,5 @@ def next():
 
 if __name__ == '__main__':
     if get_num_questions() == 0:
-        create_database(database, schema, csv)
+        create_database(DATABASE, SCHEMA, CSV)
     app.run()
