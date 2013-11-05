@@ -4,7 +4,7 @@ from contextlib import closing
 from random import shuffle
 from flask import Flask, render_template, request, redirect, g, session, flash
 from flaskext.bcrypt import Bcrypt
-from access_db import *
+from access_db import * # don't do this :)
 
 #configs
 DEBUG = os.environ["QUIZ_DEBUG"]
