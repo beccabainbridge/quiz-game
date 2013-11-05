@@ -22,10 +22,8 @@ def get_questions(n, ordered=False):
     question_nums = get_question_nums()
     if not ordered:
         shuffle(question_nums)
-    questions = []
-    for i in range(n):
-        question = get_question(question_nums[i])
-        questions.append(question)
+    question_nums = question_nums[:n]
+    questions = [get_question(num) for num in question_nums]
     return questions
 
 @app.before_request

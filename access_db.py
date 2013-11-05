@@ -103,6 +103,7 @@ def get_highscores(num):
 def get_question(n):
     q = select(db_file, "SELECT id, question, ans1, ans2, ans3, ans4, correct FROM questions WHERE id=?", (n,))
     entry = q[0]
+    #consider using zip here
     return dict(id=entry[0], question=entry[1], A=entry[2], B=entry[3], \
                         C=entry[4], D=entry[5], correct=entry[6])
 
