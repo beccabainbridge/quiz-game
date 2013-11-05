@@ -1,5 +1,6 @@
 import sqlite3
 import codecs
+from flaskext.bcrypt import Bcrypt
 from contextlib import closing
 
 db_file = 'quizgame.db'
@@ -126,8 +127,8 @@ def get_usernames():
 
 def get_password(username):
     id_num = select(db_file, 'SELECT id from usernames WHERE username=?', \
-                             (username,))[0][0]
-    password = select('SELECT password FROM passwords WHERE id=?', \
+                        (username,))[0][0]
+    password = select(db_file, 'SELECT password FROM passwords WHERE id=?', \
                        (id_num,))[0][0]
     return password
 
@@ -138,4 +139,4 @@ def get_proposed():
     proposed = {}
     for kind in ['add', 'update', 'delete']:
         proposed[kind] = select(db_file, "SELECT * from proposed WHERE kind=?", kind)
-    return proposed['add'], proposed['update'], proposed['delete']    
+    return proposed['add'], proposed['update'], proposed['delete']
