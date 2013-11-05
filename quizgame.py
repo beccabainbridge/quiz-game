@@ -18,6 +18,9 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.config.from_object(__name__)
 
+class QuestionValidationError(Exception):
+    pass
+
 def get_questions(n, ordered=False):
     question_nums = get_question_nums()
     if not ordered:
@@ -84,7 +87,7 @@ def database_access():
                 
         try:
             if not i and (update_type == 'delete' or update_type == 'update'):
-                raise Exception('Must enter question number to update or delete')
+                raise QuestionValidationError('Must enter question number to update or delete')
             
             if update_type == 'delete':
                 add_proposed([i] + question_info + ['delete', session['username']])
@@ -93,7 +96,7 @@ def database_access():
                 for item in question_info:
                     if item == "":
                         if update_type == 'add':
-                            raise Exception('Input cannot be left blank')
+                            raise QuestionValidationError('Input cannot be left blank')
                     else:
                         if update_type == 'update':
                             pass
@@ -105,7 +108,7 @@ def database_access():
                     add_proposed([i] + question_info + ['update', session['username']])
                     flash('Question submitted for update')
 
-        except (sqlite3.OperationalError, Exception) as e:
+        except (sqlite3.OperationalError, QuestionValidationError) as e:
             flash('Invalid question entry: ' + str(e))
 
     questions = get_questions(get_num_questions(), ordered=True)
