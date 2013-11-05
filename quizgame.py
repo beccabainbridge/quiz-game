@@ -97,12 +97,8 @@ def database_access():
                     if item == "" and update_type == 'add':
                         raise QuestionValidationError('Input cannot be left blank')
 
-                if update_type == 'add':
-                    add_proposed([i] + question_info + ['add', session['username']])
-                    flash('Question submitted for addition')
-                else:
-                    add_proposed([i] + question_info + ['update', session['username']])
-                    flash('Question submitted for update')
+                add_proposed([i] + question_info + [update_type, session['username']])
+                flash('Question submitted for %s' % update_type)
 
         except (sqlite3.OperationalError, QuestionValidationError) as e:
             flash('Invalid question entry: ' + str(e))
