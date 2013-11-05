@@ -26,16 +26,6 @@ def get_questions(n, ordered=False):
     questions = [get_question(num) for num in question_nums]
     return questions
 
-@app.before_request
-def before_request():
-    g.db = connect_db()
-
-@app.teardown_request
-def teardown_request(exception):
-    db = getattr(g, 'db', None)
-    if db is not None:
-        db.close()
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
