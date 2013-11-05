@@ -168,10 +168,7 @@ def end():
 def next():
     if request.method == 'GET':
         app.question_info = app.questions[app.curquestion]
-        current = copy(app.question_info)
-        del current["correct"]
-        # need to fix naming here
-        return render_template('question.html', current)
+        return render_template('question.html', question_info=app.question_info)
     else:
         # gets response to question and stays on question if not answered
         ans = request.form

@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
 <h2>Question #{{num}}</h2>
-<h4 id="question">{{question}}</h4>
+<h4 id="question">{{question_info['question']}}</h4>
 <form id='answerform' method='post' action='next' >
   Answer: <br />
-  <input id='choice1' type='radio' name='response' value='A' /><label for='choice1'>{{ans1}}</label> <br />
-  <input id='choice2' type='radio' name='response' value='B' /><label for='choice2'>{{ans2}}</label> <br />
-  <input id='choice3' type='radio' name='response' value='C' /><label for='choice3'>{{ans3}}</label> <br />
-  <input id='choice4' type='radio' name='response' value='D' /><label for='choice4'>{{ans4}}</label> <br />
+  <input id='choice1' type='radio' name='response' value='A' /><label for='choice1'>{{question_info['A']}}</label> <br />
+  <input id='choice2' type='radio' name='response' value='B' /><label for='choice2'>{{question_info['B']}}</label> <br />
+  <input id='choice3' type='radio' name='response' value='C' /><label for='choice3'>{{question_info['C']}}</label> <br />
+  <input id='choice4' type='radio' name='response' value='D' /><label for='choice4'>{{question_info['D']}}</label> <br />
   <br />
   <input type='submit' value='Submit' />
 </form>
