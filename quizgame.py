@@ -1,13 +1,15 @@
+import os
+from copy import copy
 import sqlite3
 from contextlib import closing
 from random import shuffle
 from flask import Flask, render_template, request, redirect, g, session, flash
 from flaskext.bcrypt import Bcrypt
-from access_db import *
+from access_db import * # don't do this :)
 
 #configs
-DEBUG = True
-SECRET_KEY = "placeholder"
+DEBUG = os.environ["QUIZ_DEBUG"]
+SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]
 
 database = 'quizgame.db'
 schema = 'schema.sql'
@@ -17,25 +19,16 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.config.from_object(__name__)
 
+class QuestionValidationError(Exception):
+    pass
+
 def get_questions(n, ordered=False):
     question_nums = get_question_nums()
     if not ordered:
         shuffle(question_nums)
-    questions = []
-    for i in range(n):
-        question = get_question(question_nums[i])
-        questions.append(question)
+    question_nums = question_nums[:n]
+    questions = [get_question(num) for num in question_nums]
     return questions
-
-@app.before_request
-def before_request():
-    g.db = connect_db()
-
-@app.teardown_request
-def teardown_request(exception):
-    db = getattr(g, 'db', None)
-    if db is not None:
-        db.close()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -96,28 +89,20 @@ def database_access():
                 
         try:
             if not i and (update_type == 'delete' or update_type == 'update'):
-                raise Exception('Must enter question number to update or delete')
+                raise QuestionValidationError('Must enter question number to update or delete')
             
             if update_type == 'delete':
                 add_proposed([i] + question_info + ['delete', session['username']])
                 flash('Question submitted for deletion')                    
             else:
                 for item in question_info:
-                    if item == "":
-                        if update_type == 'add':
-                            raise Exception('Input cannot be left blank')
-                    else:
-                        if update_type == 'update':
-                            pass
+                    if item == "" and update_type == 'add':
+                        raise QuestionValidationError('Input cannot be left blank')
 
-                if update_type == 'add':
-                    add_proposed([i] + question_info + ['add', session['username']])
-                    flash('Question submitted for addition')
-                else:
-                    add_proposed([i] + question_info + ['update', session['username']])
-                    flash('Question submitted for update')
+                add_proposed([i] + question_info + [update_type, session['username']])
+                flash('Question submitted for %s' % update_type)
 
-        except (sqlite3.OperationalError, Exception) as e:
+        except (sqlite3.OperationalError, QuestionValidationError) as e:
             flash('Invalid question entry: ' + str(e))
 
     questions = get_questions(get_num_questions(), ordered=True)
@@ -184,13 +169,10 @@ def end():
 def next():
     if request.method == 'GET':
         app.question_info = app.questions[app.curquestion]
-        app.n = app.curquestion + 1
-        app.q = app.question_info['question']
-        a1, a2, a3, a4 = app.question_info['A'], app.question_info['B'], \
-                         app.question_info['C'], app.question_info['D']
-        
-        return render_template('question.html', num=app.n, question=app.q, \
-                                   ans1=a1, ans2=a2, ans3=a3, ans4=a4)
+        current = copy(app.question_info)
+        del current["correct"]
+        # need to fix naming here
+        return render_template('question.html', current)
     else:
         # gets response to question and stays on question if not answered
         ans = request.form
