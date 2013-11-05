@@ -1,4 +1,5 @@
 import os
+from copy import copy
 import sqlite3
 from contextlib import closing
 from random import shuffle
@@ -170,13 +171,10 @@ def end():
 def next():
     if request.method == 'GET':
         app.question_info = app.questions[app.curquestion]
-        app.n = app.curquestion + 1
-        app.q = app.question_info['question']
-        a1, a2, a3, a4 = app.question_info['A'], app.question_info['B'], \
-                         app.question_info['C'], app.question_info['D']
-        
-        return render_template('question.html', num=app.n, question=app.q, \
-                                   ans1=a1, ans2=a2, ans3=a3, ans4=a4)
+        current = copy(app.question_info)
+        del current["correct"]
+        # need to fix naming here
+        return render_template('question.html', current)
     else:
         # gets response to question and stays on question if not answered
         ans = request.form
