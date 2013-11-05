@@ -139,5 +139,5 @@ def add_proposed(row):
 def get_proposed():
     proposed = {}
     for kind in ['add', 'update', 'delete']:
-        proposed[kind] = select(db_file, "SELECT * from proposed WHERE kind=?", kind)
+        proposed[kind] = select(db_file, "SELECT * from proposed WHERE kind=?", (kind,))
     return proposed['add'], proposed['update'], proposed['delete']
