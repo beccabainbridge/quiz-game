@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from contextlib import closing
 from random import shuffle
@@ -6,8 +7,8 @@ from flaskext.bcrypt import Bcrypt
 from access_db import *
 
 #configs
-DEBUG = True
-SECRET_KEY = "placeholder"
+DEBUG = os.environ["QUIZ_DEBUG"]
+SECRET_KEY = os.environ["QUIZ_SECRET_KEY"]
 
 database = 'quizgame.db'
 schema = 'schema.sql'
