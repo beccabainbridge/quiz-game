@@ -168,20 +168,17 @@ def main():
 @app.route('/end', methods=['GET','POST'])
 def end():
     score = app.score/app.nquestions * 100
+    get_info = False
     if request.method == 'GET' and score >= app.lowest_highscore:
-        return render_template('end.html', score=score, \
-                                   highscores=app.highscores, get_info=True)
+        get_info = True
     elif request.method == 'POST':
         name = request.form['name']
         add_to_highscores(name, score)
         # update highscores
         app.highscores = get_highscores(10)
-        return render_template('end.html', score=score, \
-                                   highscores=app.highscores, get_info=False)
-        
-    else:
-        return render_template('end.html', score=score, \
-                                   highscores=app.highscores, get_info=False)
+                
+    return render_template('end.html', score=score, \
+                               highscores=app.highscores, get_info=get_info)
 
 @app.route('/next', methods=['GET', 'POST'])
 def next():
