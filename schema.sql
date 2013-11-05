@@ -1,6 +1,5 @@
 create table questions (
   id integer primary key autoincrement,
-  num text not null,
   question text not null,
   ans1 text not null,
   ans2 text not null,
@@ -21,8 +20,8 @@ create table passwords (
   password text not null
 );
 create table proposed (
+  changeid integer primary key autoincrement,
   id integer,
-  num integer,
   question text,
   ans1 text,
   ans2 text,

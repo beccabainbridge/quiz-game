@@ -16,7 +16,7 @@ def create_database(db_file, schema, csv):
         with codecs.open(csv, encoding="utf-8", mode='rb') as f:
             for row in f:
                 row = row.rstrip().split(',') # removes new line chars before splitting
-                add_question(row, db_file)
+                add_question(row)
 
     init_db()
     generate_db_from_csv()
@@ -57,7 +57,7 @@ def get_db_size(database, table):
 
 def item_in_db(database, table, (name, item)):
     query = "SELECT COUNT(*) from %s WHERE %s=?" %(table, name)
-    result = select(database, query, item)
+    result = select(database, query, (item,))
     exists = result[0][0]
     return exists >= 1
 
@@ -68,10 +68,10 @@ def question_in_db(question):
     return item_in_db(db_file, 'questions', ('question', question))
 
 def add_question(row):
-    if question_in_db(row[1], db_file):
+    if question_in_db(row[0]):
         raise Exception('Question already in database. If you want to change the question, choose "Update Question"')
     else:
-        insert(db_file, 'INSERT INTO questions (num, question, ans1, ans2, ans3, ans4, correct) VALUES (?, ?, ?, ?, ?, ?, ?)', row)
+        insert(db_file, 'INSERT INTO questions (question, ans1, ans2, ans3, ans4, correct) VALUES (?, ?, ?, ?, ?, ?)', row)
 
 def update_question(question_num, change, remove=False):
     question = select(db_file, "SELECT question from questions WHERE id=?", \
@@ -134,7 +134,7 @@ def get_password(username):
     return password
 
 def add_proposed(row):
-    insert(db_file, "INSERT INTO proposed (id, num, question, ans1, ans2, ans3, ans4, correct, kind, username) VALUES (?,?,?,?,?,?,?,?,?,?)", row)
+    insert(db_file, "INSERT INTO proposed (id, question, ans1, ans2, ans3, ans4, correct, kind, username) VALUES (?,?,?,?,?,?,?,?,?)", row)
 
 def get_proposed():
     proposed = {}

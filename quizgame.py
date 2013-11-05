@@ -81,10 +81,9 @@ def database_access():
         q = request.form['question']
         a1, a2, a3, a4 = request.form['ans1'], request.form['ans2'], request.form['ans3'], request.form['ans4']
         c = request.form['correct']
-        n = get_num_questions() + 1
-
-        question_info = [n, q, a1, a2, a3, a4, c]
-        names = ['num', 'question', 'ans1', 'ans2', 'ans3', 'ans4', 'correct']
+        
+        question_info = [q, a1, a2, a3, a4, c]
+        names = ['question', 'ans1', 'ans2', 'ans3', 'ans4', 'correct']
                 
         try:
             if not i and (update_type == 'delete' or update_type == 'update'):
