@@ -74,7 +74,8 @@ def create_user():
         elif username in get_usernames():
             error = "Username already in use. Please choose another."
         else:
-            add_user(username, password)
+            pw_hash = bcrypt.generate_password_hash(password)
+            add_user(username, pw_hash)
             flash('Account created')
             return redirect('login')
 

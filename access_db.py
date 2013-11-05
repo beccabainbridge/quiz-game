@@ -111,9 +111,7 @@ def get_question_nums():
     question_ids = [row[0] for row in entries]
     return question_ids
 
-def add_user(username, password):
-    pw_hash = bcrypt.generate_password_hash(password)
-    
+def add_user(username, pw_hash):
     insert(db_file, 'INSERT INTO usernames (username) VALUES (?)', (username,))
     q = select(db_file, 'SELECT id from usernames WHERE username=?', \
                              (username,))
