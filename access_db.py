@@ -76,7 +76,7 @@ def add_question(row):
 def update_question(question_num, change, remove=False):
     question = select(db_file, "SELECT question from questions WHERE id=?", \
                                   (question_num,))[0][0]
-    if not question_in_db(question, db_file):
+    if not question_in_db(question):
         raise Exception('Question not in database.')
     else:
         if remove:
@@ -134,10 +134,29 @@ def get_password(username):
     return password
 
 def add_proposed(row):
-    insert(db_file, "INSERT INTO proposed (id, question, ans1, ans2, ans3, ans4, correct, kind, username) VALUES (?,?,?,?,?,?,?,?,?)", row)
+    insert(db_file, "INSERT INTO proposed (num, question, ans1, ans2, ans3, ans4, correct, kind, username) VALUES (?,?,?,?,?,?,?,?,?)", row)
 
 def get_proposed():
     proposed = {}
     for kind in ['add', 'update', 'delete']:
         proposed[kind] = select(db_file, "SELECT * from proposed WHERE kind=?", (kind,))
     return proposed['add'], proposed['update'], proposed['delete']
+
+def remove_proposed(id):
+    delete(db_file, "DELETE from proposed WHERE id=?", (id,))
+
+def make_db_change(id):
+    change_info = select(db_file, "SELECT * from proposed WHERE id=?", (id,))[0]
+    kind = change_info[8]
+    question_num = change_info[1]
+    question_info = change_info[2:8]
+    if kind == 'delete':
+        update_question(question_num, [], remove=True)
+    elif kind == 'add':
+        add_question(question_info)
+    else:
+        names = ['question','ans1','ans2','ans3','ans4','correct']
+        for i, item in enumerate(question_info):
+            if item:
+                update_question(question_num, [names[i], item])
+    remove_proposed(id)

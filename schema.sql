@@ -20,8 +20,8 @@ create table passwords (
   password text not null
 );
 create table proposed (
-  changeid integer primary key autoincrement,
-  id integer,
+  id integer primary key autoincrement,
+  num integer,
   question text,
   ans1 text,
   ans2 text,

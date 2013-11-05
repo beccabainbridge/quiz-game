@@ -2,6 +2,7 @@
 {% block body %}
   {% if session.logged_in and session.username == 'admin' %}
     <h2>Proposed Edits</h2>
+    <form action='' method='post'>
     <h4>Additions</h4>
     <table border='1'>
       <thead>
@@ -21,7 +22,7 @@
       <tbody>
 	{% for id, n, q, a1, a2, a3, a4, c, t, u in add %}
 	<tr>
-	  <td><input type='checkbox' name='{{id}}'></td>
+	  <td><input type='checkbox' name='change' value='{{id}}'></td>
 	  <td>{{u}}</td>
 	  <td>{{n}}</td>
 	  <td>{{q}}</td>
@@ -54,7 +55,7 @@
       <tbody>
 	{% for id, n, q, a1, a2, a3, a4, c, t, u in update %}
 	<tr>
-	  <td><input type='checkbox' name='{{id}}'></td>
+	  <td><input type='checkbox' name='change' value='{{id}}'></td>
 	  <td>{{u}}</td>
 	  <td>{{id}}</td>
 	  <td>{{n}}</td>
@@ -88,7 +89,7 @@
       <tbody>
 	{% for id, n, q, a1, a2, a3, a4, c, t, u in delete %}
 	<tr>
-	  <td><input type='checkbox' name='{{id}}'></td>
+	  <td><input type='checkbox' name='change' value='{{id}}'></td>
 	  <td>{{u}}</td>
 	  <td>{{id}}</td>
 	  <td>{{n}}</td>
@@ -102,6 +103,10 @@
 	{% endfor %}
       </tbody>
     </table>
+
+    <input type='submit' name='button' value='Accept'>
+    <input type='submit' name='button' value='Reject'>
+    </form>
 
     <h4>Question Database</h4>
 

@@ -109,7 +109,13 @@ def database_access():
 @app.route('/admin', methods=['GET','POST'])
 def admin():
     if request.method == 'POST':
-        pass
+        changes = request.form.getlist("change")
+        action = request.form['button']
+        for change in changes:
+            if action == 'Reject':
+                remove_proposed(change)
+            elif action == 'Accept':
+                make_db_change(change)
 
     additions, updates, deletions = get_proposed()
     questions = get_questions(get_num_questions(), ordered=True)
