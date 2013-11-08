@@ -1,6 +1,5 @@
 import sqlite3
 import codecs
-from flaskext.bcrypt import Bcrypt
 from contextlib import closing
 
 db_file = 'quizgame.db'
