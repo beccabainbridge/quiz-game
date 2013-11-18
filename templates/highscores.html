@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h4>High Scores</h4>
+  <ol>
+    {% for name, score in highscores %}
+    <li>{{name}}    {{score}}</li>
+    {% endfor %}
+  </ol>
+
+{% endblock %}

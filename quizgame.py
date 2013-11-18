@@ -165,11 +165,10 @@ def end():
     elif request.method == 'POST':
         name = request.form['name']
         access_db.add_to_highscores(name, score)
-        # update highscores
-        app.highscores = access_db.get_highscores(10)
+        return redirect('/highscores')
 
     return render_template('end.html', score=score, \
-                               highscores=app.highscores, get_info=get_info)
+                           highscores=app.highscores, get_info=get_info)
 
 @app.route('/next', methods=['GET', 'POST'])
 def next():
@@ -198,6 +197,11 @@ def next():
 
         flash(feedback)
         return redirect('main')
+
+@app.route('/highscores')
+def highscores():
+    highscores = access_db.get_highscores(10)
+    return render_template('highscores.html', highscores=highscores)
 
 if __name__ == '__main__':
     if access_db.get_num_questions() == 0:
