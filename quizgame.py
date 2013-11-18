@@ -103,7 +103,7 @@ def database_access():
         except (sqlite3.OperationalError, QuestionValidationError) as e:
             flash('Invalid question entry: ' + str(e))
 
-    questions = access_db.get_questions(get_num_questions(), ordered=True)
+    questions = get_questions(access_db.get_num_questions(), ordered=True)
     return render_template('database.html', questions=questions)
 
 @app.route('/admin', methods=['GET','POST'])
@@ -117,8 +117,8 @@ def admin():
             elif action == 'Accept':
                 access_db.make_db_change(change)
 
-    additions, updates, denletions = access_db.get_proposed()
-    questions = access_db.get_questions(access_db.get_num_questions(), ordered=True)
+    additions, updates, deletions = access_db.get_proposed()
+    questions = get_questions(access_db.get_num_questions(), ordered=True)
     return render_template('admin.html', add=additions, update=updates, delete=deletions, questions=questions)
 
 @app.route('/', methods=['GET', 'POST'])
