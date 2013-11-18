@@ -6,13 +6,16 @@
   </head>
   <body >
       <nav>
-	<a id='logo' href="/" >Quiz Game</a>
+        <a id='logo' href="/" >Quiz Game</a>
       {% if not session.logged_in %}
-	<a id='login' href="{{url_for('login')}}">log in</a>
+        <a id='login' href="{{url_for('login')}}">log in</a>
       {% else %}
-	<a id='database' href="{{url_for('database_access')}}">Question Database</a>
-	<br>
-	<a id='login' href="{{url_for('logout')}}">log out</a>
+        {% if session.username == "admin" %}
+        <a id='database' href="{{url_for('admin')}}">Admin</a><br>
+        {% endif %}
+        <a id='database' href="{{url_for('database_access')}}">Question Database</a>
+        <br>
+        <a id='login' href="{{url_for('logout')}}">log out</a>
       {% endif %}
       </nav>
       {% for message in get_flashed_messages() %}
