@@ -134,10 +134,10 @@ def index():
 
     else:
         nquestions = int(request.form['nquestions'])
-        app.questions = get_questions(nquestions)
-        app.nquestions = nquestions
-        app.curquestion = 0
-        app.score = 0
+        session['questions'] = get_questions(nquestions)
+        session['nquestions'] = nquestions
+        session['curquestion'] = 0
+        session['score'] = 0
         num_to_show = 10
         app.highscores = access_db.get_highscores(num_to_show)
         if len(app.highscores) >= num_to_show:
@@ -149,14 +149,14 @@ def index():
 
 @app.route('/main')
 def main():
-    if app.curquestion >= app.nquestions:
+    if session['curquestion'] >= session['nquestions']:
         return redirect('/end')
     else:
         return redirect('/next')
 
 @app.route('/end', methods=['GET','POST'])
 def end():
-    score = app.score/app.nquestions * 100
+    score = session['score']/session['nquestions'] * 100
     get_info = False
     if request.method == 'GET' and score >= app.lowest_highscore:
         get_info = True
@@ -172,8 +172,10 @@ def end():
 @app.route('/next', methods=['GET', 'POST'])
 def next():
     if request.method == 'GET':
-        app.question_info = app.questions[app.curquestion]
-        return render_template('question.html', question_info=app.question_info)
+        num = session['curquestion'] + 1
+        session['question_info'] = session['questions'][num-1]
+        return render_template('question.html', num=num, \
+                               question_info=session['question_info'])
     else:
         # gets response to question and stays on question if not answered
         ans = request.form
@@ -182,15 +184,15 @@ def next():
         else:
             ans = ans['response']
 
-        app.curquestion += 1
+        session['curquestion'] += 1
 
-        correct = app.question_info['correct']
+        correct = session['question_info']['correct']
         if ans == correct:
-            app.score += 1.0
+            session['score'] += 1.0
             feedback = 'Correct!'
         else:
             feedback = 'Incorrect! The correct answer was "%s"' \
-                         %(app.question_info[correct])
+                       %(session['question_info'][correct])
 
         flash(feedback)
         return redirect('main')
