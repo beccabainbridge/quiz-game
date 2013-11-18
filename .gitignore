@@ -1,4 +1,6 @@
 venv
 *.pyc
 *.py~ 
+*.html~
 .env
+.env~
