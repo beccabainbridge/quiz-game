@@ -109,6 +109,8 @@ def database_access():
 @app.route('/admin', methods=['GET','POST'])
 def admin():
     if request.method == 'POST':
+        if request.form['button'] == "Reset High Scores":
+            access_db.reset_highscores()
         changes = request.form.getlist("change")
         action = request.form['button']
         for change in changes:
@@ -116,10 +118,10 @@ def admin():
                 access_db.remove_proposed(change)
             elif action == 'Accept':
                 access_db.make_db_change(change)
-
     additions, updates, deletions = access_db.get_proposed()
     questions = get_questions(access_db.get_num_questions(), ordered=True)
-    return render_template('admin.html', add=additions, update=updates, delete=deletions, questions=questions)
+    highscores = access_db.get_highscores()
+    return render_template('admin.html', add=additions, update=updates, delete=deletions, questions=questions, highscores=highscores)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

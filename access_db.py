@@ -89,16 +89,22 @@ def add_to_highscores(name, score):
     insert(db_file, "INSERT INTO highscores (name, score) VALUES (?, ?)", (name, score,))
 
 
-def get_highscores(num):
+def get_highscores(num=-1):
     try:
         query = select(db_file, "SELECT name, score FROM highscores order by score desc")
         highscores = [(name, score) for name, score in query]
-        if len(highscores) < num:
+        if len(highscores) < num or num == -1:
             return highscores
         else:
             return highscores[:num]
     except sqlite3.OperationalError:
         return []
+
+def reset_highscores():
+    with closing(connect_db()) as db:
+        db.execute("DROP TABLE IF EXISTS highscores")
+        db.execute("CREATE TABLE highscores (name text, score integer)")
+        db.commit()
 
 def get_question(n):
     q = select(db_file, "SELECT id, question, ans1, ans2, ans3, ans4, correct FROM questions WHERE id=?", (n,))

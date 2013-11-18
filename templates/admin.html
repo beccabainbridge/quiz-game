@@ -107,7 +107,6 @@
 
     <input type='submit' name='button' value='Accept'>
     <input type='submit' name='button' value='Reject'>
-    </form>
 
     <h4>Question Database</h4>
 
@@ -141,6 +140,27 @@
         {% endfor %}
       </tbody>
     </table>
+
+    <h4>High Scores</h4>
+
+    <table border=1>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for name, score in highscores %}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{score}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+      <input type='submit' name='button' value='Reset High Scores'>
+    </form>
 
   {% else %}
     <h2> Access Denied! </h2>
